@@ -1,0 +1,36 @@
+version: '3'
+services:
+
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/sql_Dockerfile
+    restart: always
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: 'streamlit'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'root'
+      MYSQL_ROOT_PASSWORD: 'root'
+    ports:
+      - "3306:3306"
+    networks:
+      - "streamlit-network"
+    expose:
+      - 3306
+    volumes:
+      - "./MySQL.sql:/docker-entrypoint-initdb.d/0.sql"
+
+  streamlit:
+    build:
+      context: .
+    container_name: "streamlit"
+    ports:
+      - "8501:8501"
+    networks:
+      - "streamlit-network"
+    depends_on:
+      - db
+networks:
+  streamlit-network:
+    driver: "bridge"
