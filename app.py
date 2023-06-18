@@ -1,20 +1,17 @@
 import streamlit as st
 import altair as alt
-from datetime import datetime
+from data.data_import import import_data
+from features.data_viz import get_chart
 # import mysql.connector
 # import redshift_connector
 from user import login
 import pandas as pd
-from vega_datasets import data
 
 st.set_page_config(
-    layout="centered", page_icon='assets/heineken_1.jpeg',
+    layout="wide", page_icon='assets/heineken_1.jpeg',
     page_title='Heineken Brewery')
 
-st.header("Heineken Brewhouse Report 🍻 ")
-
-st.write('This is a web app to generate automated reports from Heineken\
-            Brewery.')
+# st.header("Heineken Brewhouse Report 🍻 ")
 
 
 headerSection = st.container()
@@ -23,60 +20,16 @@ LoginSection = st.container()
 LogoutSection = st.container()
 
 
-def get_data():
-    source = data.stocks()
-    source = source[source.date.gt("2004-01-01")]
-    return source
-
-
-def get_chart(data):
-
-    hover = alt.selection_single(
-        fields=["date"],
-        nearest=True,
-        on="mouseover",
-        empty="none",
-    )
-
-    lines = (
-        alt.Chart(data, title="Evolution of stock prices")
-        .mark_line()
-        .encode(
-            x="date",
-            y="price",
-            color="symbol",
-        )
-    )
-
-    # Draw points on the line, and highlight based on selection
-    points = lines.transform_filter(hover).mark_circle(size=65)
-
-    # Draw a rule at the location of the selection
-    tooltips = (
-        alt.Chart(data)
-        .mark_rule()
-        .encode(
-            x="yearmonthdate(date)",
-            y="price",
-            opacity=alt.condition(hover, alt.value(0.3), alt.value(0)),
-            tooltip=[
-                alt.Tooltip("date", title="Date"),
-                alt.Tooltip("price", title="Price (USD)"),
-            ],
-        )
-        .add_selection(hover)
-    )
-    return (lines + points + tooltips).interactive()
-
-
 def show_main_page():
 
     with mainSection:
+        df_enchimento = pd.DataFrame({'Headspace': 'null', 'Extrato Inicial': 'null',
+                                     'Volume Inicial': 'null', 'ph 48 horas': 'null', 'Volume SAP': 'null'}, index=['Headspace', 'Extrato Inicial',
+                                     'Volume Inicial', 'ph 48 horas', 'Volume SAP'])
+        # df_qtd_malte = pd.read_csv("data/df_qtd_malte.csv", sep=',')
+        # df_coz_malte = pd.read_csv("data/df_coz_malte.csv", sep=',')
 
-        df_qtd_malte = pd.read_csv("data/df_qtd_malte.csv", sep=',')
-        df_coz_malte = pd.read_csv("data/df_coz_malte.csv", sep=',')
-
-        source = get_data()
+        source = import_data()
 
         # Original time series chart. Omitted `get_chart` for clarity
         chart = get_chart(source)
@@ -103,35 +56,45 @@ def show_main_page():
             )
             .interactive()
         )
+        data_container = st.container()
+        with data_container:
+            c1, c2 = st.columns(
+                [2, 1], gap="small")
+            with c1:
+                b1, b2, b3, b4 = st.columns(4)
+                with b1:
+                    st.text_input("Tanque(OD)", value=27)
+                with b2:
+                    st.text_input("Tanque(OD)")
+                with b3:
+                    st.text_input("Zero Grau")
+                with b4:
+                    st.text_input("Guarda Quente")
 
-        # Display both charts together
-        st.altair_chart((chart + annotation_layer).interactive(),
-                        use_container_width=True)
+                # Display both charts together
+                st.altair_chart((chart + annotation_layer).interactive(),
+                                use_container_width=True)
+                st.dataframe(df_enchimento.reset_index(drop=True))
 
-        st.subheader("Batch Number: 1234")
+            with c2:
+                add_data = st.button("Salvar ✅", use_container_width=True)
+                st.subheader("Dados de Enchimento")
+                headspace = st.text_input("Headspace")
+                ext_ini = st.text_input("Extrato Inicial")
 
-        st.subheader("Malt Amount")
-        st.table(df_qtd_malte.tail())
-
-        st.subheader("Malt Mash Tun")
-        st.table(df_coz_malte.tail())
-
-        st.sidebar.image('assets/heineken_logo.png',
+        st.sidebar.image('assets/Heineken-Logo-PNG4.png',
                          use_column_width=True)
         st.sidebar.header("Inputs")
-        options_form = st.sidebar.form("options_form")
 
-        Inicio_Ben = options_form.text_input("Inicio_Ben")
-        Fim_Ben = options_form.text_input("Fim_Ben")
-        Qtd_Silo1 = options_form.text_input("Qtd_Silo1")
-        Qtd_Silo2 = options_form.text_input("Qtd_Silo2")
-
-        Inicio_CozMal = options_form.text_input("Inicio_CozMal")
-        Fim_CozMal = options_form.text_input("Fim_CozMal")
-        Temp_Max_CozMal = options_form.text_input("Temp_Max_CozMal")
-        Dur_CozMal = options_form.text_input("Dur_CozMal")
-
-        add_data = options_form.form_submit_button()
+        Inicio_Ben = st.sidebar.text_input("Data Início")
+        Fim_Ben = st.sidebar.text_input("Data Fim")
+        Ench_tanque = st.sidebar.text_input("Enchimento Tanque")
+        # Qtd_Silo2 = options_form.text_input("Qtd_Silo2")
+        st.sidebar.write("Status")
+        st.sidebar.checkbox('Todos')
+        st.sidebar.checkbox('Disponíveis')
+        st.sidebar.checkbox('Finalizados')
+        st.sidebar.checkbox('Reprovados')
 
         if add_data:
             new_data_malte = {
