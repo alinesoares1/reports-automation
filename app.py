@@ -9,7 +9,19 @@ import pandas as pd
 
 st.set_page_config(
     layout="wide", page_icon='assets/heineken_1.jpeg',
-    page_title='Heineken Brewery')
+    page_title='Heineken Brewery',
+    menu_items={
+        'Get Help': 'https://www.extremelycoolapp.com/help',
+        'Report a bug': "https://www.extremelycoolapp.com/bug",
+        'About': "# This is a header. This is an *extremely* cool app!"
+    })
+
+css = '''
+<style>
+    section.LoginSection > div {max-width:45rem}
+</style>
+'''
+st.markdown(css, unsafe_allow_html=True)
 
 # st.header("Heineken Brewhouse Report 🍻 ")
 
@@ -23,9 +35,11 @@ LogoutSection = st.container()
 def show_main_page():
 
     with mainSection:
-        df_enchimento = pd.DataFrame({'Headspace': 'null', 'Extrato Inicial': 'null',
-                                     'Volume Inicial': 'null', 'ph 48 horas': 'null', 'Volume SAP': 'null'}, index=['Headspace', 'Extrato Inicial',
-                                     'Volume Inicial', 'ph 48 horas', 'Volume SAP'])
+        df_enchimento = pd.DataFrame({'Job ID': 'null', 'Headspace': 'null', 'Extrato Inicial': 'null',
+                                     'Volume Inicial': 'null', 'ph 48 horas': 'null', 'Temperatura': 'null',
+                                      'Mosto': 'null', 'Volume SAP': 'null'},
+                                     index=['Job ID', 'Headspace', 'Extrato Inicial',
+                                     'Volume Inicial', 'ph 48 horas', 'Temperatura', 'Mosto', 'Volume SAP'])
         # df_qtd_malte = pd.read_csv("data/df_qtd_malte.csv", sep=',')
         # df_coz_malte = pd.read_csv("data/df_coz_malte.csv", sep=',')
 
@@ -63,7 +77,7 @@ def show_main_page():
             with c1:
                 b1, b2, b3, b4 = st.columns(4)
                 with b1:
-                    st.text_input("Tanque(OD)", value=27)
+                    st.text_input("Horap", value=2)
                 with b2:
                     st.text_input("Tanque(OD)")
                 with b3:
@@ -77,17 +91,21 @@ def show_main_page():
                 st.dataframe(df_enchimento.reset_index(drop=True))
 
             with c2:
-                add_data = st.button("Salvar ✅", use_container_width=True)
+                add_data = st.button(
+                    "Salvar ✅", use_container_width=True, type='primary')
+                # st.button(label="My button", style="background-color: #DD3300; color:#eeffee; border-radius: 0.75rem;")
                 st.subheader("Dados de Enchimento")
                 headspace = st.text_input("Headspace")
                 ext_ini = st.text_input("Extrato Inicial")
+                ext_fim = st.text_input("Extrato Final")
+                obs = st.text_area("Observações:", height=100)
 
         st.sidebar.image('assets/Heineken-Logo-PNG4.png',
                          use_column_width=True)
-        st.sidebar.header("Inputs")
+        st.sidebar.header("Relatórios de Fermentação")
 
-        Inicio_Ben = st.sidebar.text_input("Data Início")
-        Fim_Ben = st.sidebar.text_input("Data Fim")
+        Inicio_Ben = st.sidebar.date_input("Data Início")
+        Fim_Ben = st.sidebar.date_input("Data Fim")
         Ench_tanque = st.sidebar.text_input("Enchimento Tanque")
         # Qtd_Silo2 = options_form.text_input("Qtd_Silo2")
         st.sidebar.write("Status")
@@ -143,7 +161,7 @@ def show_login_page():
             password = st.text_input(
                 label="", value="", placeholder="Enter password", type="password")
             st.button("Login", on_click=LoggedIn_Clicked,
-                      args=(userName, password))
+                      args=(userName, password), type='primary')
 
 
 with headerSection:

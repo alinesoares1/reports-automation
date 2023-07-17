@@ -12,7 +12,7 @@ def get_chart(data):
     )
 
     lines = (
-        alt.Chart(data, title="Evolution of stock prices")
+        alt.Chart(data, title="Parâmetros de Fermentação")
         .mark_line()
         .encode(
             x="date",
@@ -34,7 +34,7 @@ def get_chart(data):
             opacity=alt.condition(hover, alt.value(0.3), alt.value(0)),
             tooltip=[
                 alt.Tooltip("date", title="Date"),
-                alt.Tooltip("price", title="Price (USD)"),
+                alt.Tooltip("price", title="Values"),
             ],
         )
         .add_selection(hover)
