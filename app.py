@@ -16,13 +16,6 @@ st.set_page_config(
         'About': "# This is a header. This is an *extremely* cool app!"
     })
 
-css = '''
-<style>
-    section.LoginSection > div {max-width:45rem}
-</style>
-'''
-st.markdown(css, unsafe_allow_html=True)
-
 # st.header("Heineken Brewhouse Report 🍻 ")
 
 
